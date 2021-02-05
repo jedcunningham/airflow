@@ -1987,6 +1987,31 @@ class TestSchedulerJob(unittest.TestCase):
             assert ti.start_date == ti.end_date
             assert ti.duration is not None
 
+    def test_executor_end_called(self):
+        """
+        Test to make sure executor.end gets called with a successful scheduler loop run
+        """
+        scheduler = SchedulerJob(subdir=os.devnull, num_runs=1)
+        scheduler.executor = mock.MagicMock(slots_available=8)
+        scheduler.processor_agent = mock.MagicMock()
+
+        scheduler.run()
+
+        scheduler.executor.end.assert_called_once()
+
+    def test_executor_end_called_exception(self):
+        """
+        Test to make sure executor.end gets called when the scheduler loop has an exception
+        """
+        scheduler = SchedulerJob(subdir=os.devnull, num_runs=1)
+        scheduler.executor = mock.MagicMock(slots_available=8)
+        scheduler.processor_agent = mock.MagicMock()
+        scheduler._run_scheduler_loop = mock.MagicMock(side_effect=Exception("oops"))
+
+        scheduler.run()
+
+        scheduler.executor.end.assert_called_once()
+
     def test_dagrun_timeout_verify_max_active_runs(self):
         """
         Test if a a dagrun will not be scheduled if max_dag_runs

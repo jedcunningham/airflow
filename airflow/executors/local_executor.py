@@ -383,6 +383,10 @@ class LocalExecutor(BaseExecutor):
             raise AirflowException(NOT_STARTED_MESSAGE)
         if not self.manager:
             raise AirflowException(NOT_STARTED_MESSAGE)
+        self.log.info(
+            "Shutting down LocalExecutor"
+            " - this will wait for running tasks to finish, or signal again if you don't want to wait."
+        )
         self.impl.end()
         self.manager.shutdown()
 
