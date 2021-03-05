@@ -2012,6 +2012,25 @@ class TestSchedulerJob(unittest.TestCase):
 
         scheduler.executor.end.assert_called_once()
 
+    @mock.patch('airflow.jobs.scheduler_job.DagFileProcessorAgent')
+    # @mock.patch('airflow.utils.dag_processing.DagFileProcessorAgent')
+    def test_cleanup_methods_all_called(self, mock_processor_agent):
+        """
+        Test to make sure all cleanup methods are called when the scheduler loop has an exception
+        """
+        scheduler = SchedulerJob(subdir=os.devnull, num_runs=1)
+        scheduler.executor = mock.MagicMock(slots_available=8)
+        scheduler._run_scheduler_loop = mock.MagicMock(side_effect=Exception("oops"))
+        mock_processor_agent.end.side_effect = Exception("double oops")
+        scheduler.executor.end = mock.MagicMock(side_effect=Exception("tripple oops"))
+
+        # with self.assertRaises(Exception):
+        scheduler.run()
+
+        scheduler.processor_agent.end.assert_called_once()
+        # mock_processor_agent.end.assert_called_once()
+        scheduler.executor.end.assert_called_once()
+
     def test_dagrun_timeout_verify_max_active_runs(self):
         """
         Test if a a dagrun will not be scheduled if max_dag_runs
