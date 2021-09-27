@@ -92,6 +92,8 @@ function parallel::monitor_loop() {
             echo "${COLOR_BLUE}### The last ${PARALLEL_TAIL_LENGTH} lines for ${parallel_process} process: ${directory}/stdout ###${COLOR_RESET}"
             tail "-${PARALLEL_TAIL_LENGTH}" "${directory}/stdout" || true
             echo
+            ls -l "${directory}/stdout"
+            echo
 
             if [[ -s "${directory}/status" ]]; then
               finished_jobs+=("$parallel_process")
@@ -172,8 +174,6 @@ function parallel::print_job_summary_and_return_status_code() {
         status_file="${PARALLEL_MONITORED_DIR}/${SEMAPHORE_NAME}/${job}/status"
         if [[ -s "${status_file}"  ]]; then
             status=$(cat "${status_file}")
-
-            ls -l "${status_file}"
         else
             echo "${COLOR_RED}Missing ${status_file}  file"
             status="1"
