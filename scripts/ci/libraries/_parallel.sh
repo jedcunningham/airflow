@@ -172,9 +172,15 @@ function parallel::print_job_summary_and_return_status_code() {
         status_file="${PARALLEL_MONITORED_DIR}/${SEMAPHORE_NAME}/${job}/status"
         if [[ -s "${status_file}"  ]]; then
             status=$(cat "${status_file}")
+
+            ls -l "${status_file}"
         else
             echo "${COLOR_RED}Missing ${status_file}  file"
             status="1"
+
+            ls -l "${status_file}"
+            find "/tmp"
+            ps aux
         fi
         if [[ ${status} == "0" ]]; then
             parallel::output_log_for_successful_job "${job}"
